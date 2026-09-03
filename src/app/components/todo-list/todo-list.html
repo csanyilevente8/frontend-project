@@ -1,0 +1,46 @@
+<section class="list-page">
+  <header class="list-header">
+    <h1>Todos</h1>
+    <a routerLink="/todos/new" class="primary">Add Todo</a>
+  </header>
+
+  <p *ngIf="errorMessage()" class="error" role="alert">{{ errorMessage() }}</p>
+
+  <p *ngIf="loading()" class="status">Loading...</p>
+
+  <ng-container *ngIf="!loading()">
+    <p *ngIf="todos().length === 0 && !errorMessage()" class="empty">
+      No todos yet. Create your first todo!
+    </p>
+
+    <ul class="todo-list" *ngIf="todos().length > 0">
+      <li *ngFor="let todo of todos()" class="todo-item" [class.completed]="todo.completed">
+        <div class="todo-main">
+          <label class="complete-control">
+            <input
+              type="checkbox"
+              [checked]="todo.completed"
+              (change)="toggleCompleted(todo)"
+              [attr.aria-label]="'Toggle completion for ' + todo.title"
+            />
+          </label>
+          <div class="todo-text">
+            <span class="todo-title">{{ todo.title }}</span>
+            <span class="todo-description" *ngIf="todo.description">
+              {{ todo.description }}
+            </span>
+            <span class="todo-meta">
+              Created {{ todo.createdAt | date: 'medium' }}
+            </span>
+          </div>
+        </div>
+        <div class="todo-actions">
+          <a [routerLink]="['/todos', todo.id, 'edit']" class="secondary">Edit</a>
+          <button type="button" class="danger" (click)="deleteTodo(todo)">
+            Delete
+          </button>
+        </div>
+      </li>
+    </ul>
+  </ng-container>
+</section>

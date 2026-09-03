@@ -1,0 +1,51 @@
+<section class="form-page">
+  <h1>{{ isEditMode ? 'Edit Todo' : 'Add Todo' }}</h1>
+
+  <p *ngIf="loading()" class="status">Loading...</p>
+
+  <p *ngIf="errorMessage()" class="error" role="alert">{{ errorMessage() }}</p>
+
+  <form *ngIf="!loading()" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <div class="field">
+      <label for="title">Title</label>
+      <input
+        id="title"
+        type="text"
+        formControlName="title"
+        autocomplete="off"
+      />
+      <small class="field-error" *ngIf="hasError('title', 'required')">
+        Title must not be empty
+      </small>
+      <small class="field-error" *ngIf="hasError('title', 'maxlength')">
+        Title must be at most 255 characters
+      </small>
+    </div>
+
+    <div class="field">
+      <label for="description">Description</label>
+      <textarea
+        id="description"
+        rows="4"
+        formControlName="description"
+      ></textarea>
+      <small class="field-error" *ngIf="hasError('description', 'maxlength')">
+        Description must be at most 2000 characters
+      </small>
+    </div>
+
+    <div class="field checkbox" *ngIf="isEditMode">
+      <label>
+        <input type="checkbox" formControlName="completed" />
+        Completed
+      </label>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="primary" [disabled]="saving()">
+        {{ saving() ? 'Saving...' : 'Save' }}
+      </button>
+      <a routerLink="/" class="secondary">Cancel</a>
+    </div>
+  </form>
+</section>
