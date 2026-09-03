@@ -79,13 +79,7 @@ Production output is written to `dist/frontend`.
 
 ## GitHub Actions
 
-CI is defined in `.github/workflows/frontend-ci.yml` but is **currently
-disabled**: the workflow file is entirely commented out, so pushing to GitHub
-does not trigger any build.
-
-When enabled, it sets up Node.js LTS, runs `npm ci`, `npm test` and
-`npm run build`, and fails the build if tests or the build fail. It is
-configured to run on the `main` branch and on pull requests.
-
-To enable it, open the workflow file and uncomment the block (remove the leading
-`# ` from each line).
+CI is defined in `.github/workflows/frontend-ci.yml`. It runs on pushes to the
+`main` branch and on pull requests targeting `main`: it sets up Node.js LTS,
+runs `npm ci`, `npm test` and `npm run build`. The build fails if tests or the
+build fail.
