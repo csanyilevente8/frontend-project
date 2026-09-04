@@ -1,0 +1,75 @@
+name: Frontend CD
+
+# Deploy runs only after "Frontend CI" succeeds on the main branch, so a build
+# with failing tests is never deployed. CD does not run on pull requests.
+on:
+  workflow_run:
+    workflows: ["Frontend CI"]
+    types: [completed]
+    branches: [ main ]
+
+# Required for Workload Identity Federation: the job mints a GitHub OIDC token
+# that Google Cloud exchanges for short-lived credentials (no long-lived keys).
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT: project-f0ad4dfa-b194-4dc6-963
+  REGION: europe-central2
+  AR_REPO: kubecourse
+  IMAGE: frontend
+  CLUSTER: kubecourse
+  ZONE: europe-central2-a
+  NAMESPACE: todo
+  DEPLOYMENT: frontend
+  WIF_PROVIDER: projects/860228474942/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+  DEPLOYER_SA: github-deployer@project-f0ad4dfa-b194-4dc6-963.iam.gserviceaccount.com
+
+jobs:
+  deploy:
+    name: Build, push and deploy
+    runs-on: ubuntu-latest
+    # Only proceed if the triggering CI run actually succeeded.
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout the exact commit that passed CI
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Authenticate to Google Cloud (Workload Identity Federation)
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOYER_SA }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${REGION}-docker.pkg.dev --quiet
+
+      - name: Build and push image (linux/amd64, tagged with commit SHA)
+        run: |
+          SHA=$(git rev-parse --short HEAD)
+          IMG="${REGION}-docker.pkg.dev/${PROJECT}/${AR_REPO}/${IMAGE}:${SHA}"
+          echo "Building $IMG"
+          # GitHub runners are amd64; --platform is an explicit guard so the
+          # image always matches the GKE nodes.
+          docker build --platform linux/amd64 -t "$IMG" .
+          docker push "$IMG"
+          echo "IMG=$IMG" >> "$GITHUB_ENV"
+
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ env.CLUSTER }}
+          location: ${{ env.ZONE }}
+
+      - name: Deploy (rolling update to the new image)
+        run: |
+          kubectl set image deployment/${DEPLOYMENT} ${DEPLOYMENT}="$IMG" -n ${NAMESPACE}
+          kubectl rollout status deployment/${DEPLOYMENT} -n ${NAMESPACE} --timeout=180s
