@@ -70,6 +70,25 @@ describe('TodoList', () => {
     expect(text).toContain('Buy milk');
   });
 
+  it('sorts loaded todos by creation date, newest first', () => {
+    const older = makeTodo({
+      id: '22222222-2222-2222-2222-222222222222',
+      title: 'Older',
+      createdAt: '2026-09-01T10:00:00Z',
+    });
+    const newer = makeTodo({
+      id: '33333333-3333-3333-3333-333333333333',
+      title: 'Newer',
+      createdAt: '2026-09-05T10:00:00Z',
+    });
+    // Returned in ascending order to confirm the component re-sorts them.
+    service.getAll.mockReturnValue(of([older, newer]));
+    create();
+    fixture.detectChanges();
+
+    expect(component.todos().map((t) => t.title)).toEqual(['Newer', 'Older']);
+  });
+
   it('shows an error message when loading fails', () => {
     service.getAll.mockReturnValue(throwError(() => new Error('boom')));
     create();
