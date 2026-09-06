@@ -34,7 +34,7 @@ export class TodoList implements OnInit {
     this.errorMessage.set(null);
     this.todoService.getAll().subscribe({
       next: (todos) => {
-        this.todos.set(todos);
+        this.todos.set(this.sortByCreatedAtDesc(todos));
         this.loading.set(false);
       },
       error: () => {
@@ -57,8 +57,7 @@ export class TodoList implements OnInit {
     });
   }
 
-  deleteTodo(todo: Todo): void {
-    const confirmed = confirm(`Delete "${todo.title}"?`);
+  deleteTodo(todo: Todo): void {    const confirmed = confirm(`Delete "${todo.title}"?`);
     if (!confirmed) {
       return;
     }
@@ -70,5 +69,15 @@ export class TodoList implements OnInit {
         this.errorMessage.set('Unable to delete the todo. Please try again.');
       },
     });
+  }
+
+  /**
+   * Returns a new array sorted by creation date, newest first.
+   */
+  private sortByCreatedAtDesc(todos: Todo[]): Todo[] {
+    return [...todos].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
   }
 }
