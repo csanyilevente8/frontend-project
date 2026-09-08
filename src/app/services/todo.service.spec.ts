@@ -89,4 +89,27 @@ describe('TodoService', () => {
     expect(req.request.method).toBe('GET');
     req.flush([]);
   });
+
+  it('getNotifications issues GET to the notifications url', () => {
+    service.getNotifications().subscribe();
+    const req = httpMock.expectOne(`${environment.apiUrl}/notifications`);
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
+  });
+
+  it('getUnreadNotificationCount issues GET to the unread-count url', () => {
+    let result: { count: number } | undefined;
+    service.getUnreadNotificationCount().subscribe((r) => (result = r));
+    const req = httpMock.expectOne(`${environment.apiUrl}/notifications/unread-count`);
+    expect(req.request.method).toBe('GET');
+    req.flush({ count: 3 });
+    expect(result).toEqual({ count: 3 });
+  });
+
+  it('markNotificationsRead issues POST to the read url', () => {
+    service.markNotificationsRead().subscribe();
+    const req = httpMock.expectOne(`${environment.apiUrl}/notifications/read`);
+    expect(req.request.method).toBe('POST');
+    req.flush({ updated: 3 });
+  });
 });

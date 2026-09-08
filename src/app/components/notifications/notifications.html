@@ -1,0 +1,31 @@
+<section class="notifications-page">
+  <header class="notifications-header">
+    <h1>Notifications</h1>
+    <div class="actions">
+      <button type="button" class="secondary" (click)="load()">Refresh</button>
+      <a routerLink="/" class="secondary">Back to todos</a>
+    </div>
+  </header>
+
+  <p *ngIf="errorMessage()" class="error" role="alert">{{ errorMessage() }}</p>
+
+  <p *ngIf="loading()" class="status">Loading...</p>
+
+  <ng-container *ngIf="!loading()">
+    <p *ngIf="items().length === 0 && !errorMessage()" class="empty">
+      No notifications yet. Create, complete or delete a todo to see notifications here.
+    </p>
+
+    <ul class="notifications-list" *ngIf="items().length > 0">
+      <li
+        *ngFor="let n of items()"
+        class="notification-item"
+        [class.unread]="!n.read"
+      >
+        <span [class]="badgeClass(n.type)">{{ n.type }}</span>
+        <span class="message">{{ n.message }}</span>
+        <span class="time">{{ n.createdAt | date: 'medium' }}</span>
+      </li>
+    </ul>
+  </ng-container>
+</section>

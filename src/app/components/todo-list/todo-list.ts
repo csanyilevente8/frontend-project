@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TodoService } from '../../services/todo.service';
@@ -18,15 +18,35 @@ import { Todo } from '../../models/todo.model';
   templateUrl: './todo-list.html',
   styleUrl: './todo-list.css',
 })
-export class TodoList implements OnInit {
+export class TodoList implements OnInit, OnDestroy {
   private readonly todoService = inject(TodoService);
 
   readonly todos = signal<Todo[]>([]);
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly unreadCount = signal(0);
+
+  private pollHandle: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit(): void {
     this.load();
+    this.loadUnreadCount();
+    // Poll the unread notification count so the bell badge stays current as the
+    // "notifier" Kafka consumer writes new notifications on the backend.
+    this.pollHandle = setInterval(() => this.loadUnreadCount(), 10000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.pollHandle !== null) {
+      clearInterval(this.pollHandle);
+    }
+  }
+
+  private loadUnreadCount(): void {
+    this.todoService.getUnreadNotificationCount().subscribe({
+      next: (res) => this.unreadCount.set(res.count),
+      error: () => {},
+    });
   }
 
   load(): void {

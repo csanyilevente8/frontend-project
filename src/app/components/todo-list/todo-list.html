@@ -2,6 +2,10 @@
   <header class="list-header">
     <h1>Todos</h1>
     <div class="header-actions">
+      <a routerLink="/notifications" class="secondary bell" aria-label="Notifications">
+        🔔
+        <span *ngIf="unreadCount() > 0" class="badge-count">{{ unreadCount() }}</span>
+      </a>
       <a routerLink="/activity" class="secondary">Activity</a>
       <a routerLink="/todos/new" class="primary">Add Todo</a>
     </div>
