@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { CreateTodoRequest, Todo, UpdateTodoRequest } from '../models/todo.model';
+import { CreateTodoRequest, Todo, UpdateTodoRequest, Activity } from '../models/todo.model';
 
 /**
  * Single point of contact with the backend Todo REST API.
@@ -35,5 +35,10 @@ export class TodoService {
 
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  /** Recent activity entries (populated by the backend's Kafka consumer). */
+  getActivity(): Observable<Activity[]> {
+    return this.http.get<Activity[]>(`${environment.apiUrl}/activity`);
   }
 }

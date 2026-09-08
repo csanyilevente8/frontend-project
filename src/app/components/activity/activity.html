@@ -1,0 +1,27 @@
+<section class="activity-page">
+  <header class="activity-header">
+    <h1>Activity</h1>
+    <div class="actions">
+      <button type="button" class="secondary" (click)="load()">Refresh</button>
+      <a routerLink="/" class="secondary">Back to todos</a>
+    </div>
+  </header>
+
+  <p *ngIf="errorMessage()" class="error" role="alert">{{ errorMessage() }}</p>
+
+  <p *ngIf="loading()" class="status">Loading...</p>
+
+  <ng-container *ngIf="!loading()">
+    <p *ngIf="items().length === 0 && !errorMessage()" class="empty">
+      No activity yet. Create, complete or delete a todo to see events here.
+    </p>
+
+    <ul class="activity-list" *ngIf="items().length > 0">
+      <li *ngFor="let a of items()" class="activity-item">
+        <span [class]="badgeClass(a.type)">{{ a.type }}</span>
+        <span class="detail">{{ a.detail }}</span>
+        <span class="time">{{ a.createdAt | date: 'medium' }}</span>
+      </li>
+    </ul>
+  </ng-container>
+</section>
