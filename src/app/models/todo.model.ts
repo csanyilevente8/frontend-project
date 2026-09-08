@@ -26,3 +26,16 @@ export interface Activity {
   detail: string | null;
   createdAt: string;
 }
+
+/**
+ * A notification, fed from the backend's independent "notifier" Kafka consumer
+ * group (UC2 fan-out — same events as the activity log, separate consumer).
+ */
+export interface Notification {
+  id: number;
+  todoId: string;
+  type: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}

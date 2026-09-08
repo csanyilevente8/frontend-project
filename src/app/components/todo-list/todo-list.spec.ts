@@ -24,6 +24,7 @@ describe('TodoList', () => {
     getAll: ReturnType<typeof vi.fn>;
     setCompleted: ReturnType<typeof vi.fn>;
     delete: ReturnType<typeof vi.fn>;
+    getUnreadNotificationCount: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
@@ -31,6 +32,7 @@ describe('TodoList', () => {
       getAll: vi.fn(),
       setCompleted: vi.fn(),
       delete: vi.fn(),
+      getUnreadNotificationCount: vi.fn().mockReturnValue(of({ count: 0 })),
     };
 
     await TestBed.configureTestingModule({
