@@ -17,3 +17,12 @@ export interface UpdateTodoRequest {
   description?: string | null;
   completed: boolean;
 }
+
+/** An activity-log entry, fed from Kafka events on the backend. */
+export interface Activity {
+  id: number;
+  todoId: string;
+  type: string;
+  detail: string | null;
+  createdAt: string;
+}

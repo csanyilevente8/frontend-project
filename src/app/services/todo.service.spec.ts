@@ -82,4 +82,11 @@ describe('TodoService', () => {
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
   });
+
+  it('getActivity issues GET to the activity url', () => {
+    service.getActivity().subscribe();
+    const req = httpMock.expectOne(`${environment.apiUrl}/activity`);
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
+  });
 });

@@ -1,7 +1,10 @@
 <section class="list-page">
   <header class="list-header">
     <h1>Todos</h1>
-    <a routerLink="/todos/new" class="primary">Add Todo</a>
+    <div class="header-actions">
+      <a routerLink="/activity" class="secondary">Activity</a>
+      <a routerLink="/todos/new" class="primary">Add Todo</a>
+    </div>
   </header>
 
   <p *ngIf="errorMessage()" class="error" role="alert">{{ errorMessage() }}</p>
